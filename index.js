@@ -4,12 +4,12 @@ var http = require('http'),
     titles = [],
     titleToUse = '';
 
-function chooseTitle(titles){
-  return titles[Math.floor(Math.random() * titles.length)];
+var chooseRandom = function (arr) {
+  return arr[Math.round(Math.random() * arr.length)];
 }
 
-function chooseRandom(arr){
-  return arr[Math.round(Math.random() * arr.length)];
+var tweetBody = function (firstProblem, secondProblem) {
+  return "The two hardest problems in computer science are " + firstProblem + " and " + secondProblem + ".";
 }
 
 var topStorySections = [
@@ -40,9 +40,9 @@ http.get("http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySect
       title = results[i].title;
       titles.push(title);
     }
-    titleToUse = chooseTitle(titles);
-    while (titleToUse.length < 2){
-      titleToUse = chooseTitle(titles);
+    titleToUse = chooseRandom(titles);
+    while (titleToUse.length <= 2){
+      titleToUse = chooseRandom(titles);
     }
     var nounPhraseUrl = "https://textanalysis.p.mashape.com/textblob-noun-phrase-extraction?text=" + titleToUse;
 
@@ -56,13 +56,12 @@ http.get("http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySect
              firstProblem = chooseRandom(phrases),
              secondProblem = chooseRandom(phrases);
         while (firstProblem === secondProblem){
-          firstProblem = chooseRandom(phrases),
+          firstProblem = chooseRandom(phrases);
           secondProblem = chooseRandom(phrases);
         }
-        console.log("The two hardest problems in computer science are " + firstProblem + " and " + secondProblem + ".");
+        console.log(tweetBody(firstProblem, secondProblem));
       });
     });
 }).on('error', function(e){
   console.log(e);
 });
-
