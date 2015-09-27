@@ -1,0 +1,16 @@
+{
+  "name": "two_hard_problems",
+  "version": "1.0.0",
+  "description": "A Twitter bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nick Cox (@thenickcox)",
+  "license": "MIT",
+  "devDependencies": {
+    "dotenv": "^1.2.0",
+    "request": "^2.64.0",
+    "unirest": "^0.4.2"
+  }
+}
