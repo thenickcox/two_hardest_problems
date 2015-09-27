@@ -1,8 +1,16 @@
 var http = require('http'),
     unirest = require('unirest'),
     dotenv = require('dotenv').load(),
+    Twit = require('twit'),
     titles = [],
     titleToUse = '';
+
+var T = new Twit({
+  consumer_key:         process.env.CONSUMER_KEY,
+  consumer_secret:      process.env.CONSUMER_SECRET,
+  access_token:         process.env.ACCESS_TOKEN,
+  access_token_secret:  process.env.ACCESS_TOKEN_SECRET
+});
 
 var chooseRandom = function (arr) {
   var index = Math.floor(Math.random() * arr.length);
@@ -41,7 +49,10 @@ var composeTweet = function(titleToUse){
         firstProblem = chooseRandom(phrases);
         secondProblem = chooseRandom(phrases);
       }
-      console.log(tweetBody(firstProblem, secondProblem));
+      var botStatus = tweetBody(firstProblem, secondProblem);
+      T.post('statuses/update', { status: botStatus }, function(err, data, response) {
+        console.log(data)
+      });
     });
 }
 
