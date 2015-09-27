@@ -5,7 +5,8 @@ var http = require('http'),
     titleToUse = '';
 
 var chooseRandom = function (arr) {
-  return arr[Math.round(Math.random() * arr.length)];
+  var index = Math.floor(Math.random() * arr.length);
+  return arr[index];
 }
 
 var tweetBody = function (firstProblem, secondProblem) {
