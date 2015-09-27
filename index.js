@@ -12,7 +12,21 @@ function chooseRandom(arr){
   return arr[Math.round(Math.random() * arr.length)];
 }
 
-http.get("http://api.nytimes.com/svc/topstories/v1/politics.json?api-key=" + process.env.NY_TIMES_API_KEY, function(res){
+var topStorySections = [
+  'world',
+  'national',
+  'politics',
+  'business',
+  'opinion',
+  'technology',
+  'science',
+  'health',
+  'sports',
+  'arts',
+  'fashion',
+]
+
+http.get("http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySections) + ".json?api-key=" + process.env.NY_TIMES_API_KEY, function(res){
   res.setEncoding('utf-8');
   var body = '';
   res.on('data', function(chunk) {
