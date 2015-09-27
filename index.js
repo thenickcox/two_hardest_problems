@@ -27,7 +27,27 @@ var topStorySections = [
   'fashion',
 ]
 
-http.get("http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySections) + ".json?api-key=" + process.env.NY_TIMES_API_KEY, function(res){
+var composeTweet = function(titleToUse){
+  unirest.post("https://textanalysis.p.mashape.com/textblob-noun-phrase-extraction")
+    .header("X-Mashape-Key", process.env.MASHAPE_API_KEY)
+    .header("Content-Type", "application/x-www-form-urlencoded")
+    .header("Accept", "application/json")
+    .send("text=" + titleToUse)
+    .end(function (result) {
+       var phrases = result.body.noun_phrases,
+           firstProblem = chooseRandom(phrases),
+           secondProblem = chooseRandom(phrases);
+      while (firstProblem === secondProblem){
+        firstProblem = chooseRandom(phrases);
+        secondProblem = chooseRandom(phrases);
+      }
+      console.log(tweetBody(firstProblem, secondProblem));
+    });
+}
+
+var nyTimesUrl = "http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySections) + ".json?api-key=" + process.env.NY_TIMES_API_KEY;
+
+http.get(nyTimesUrl, function(res){
   res.setEncoding('utf-8');
   var body = '';
   res.on('data', function(chunk) {
@@ -45,24 +65,8 @@ http.get("http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySect
     while (titleToUse.length <= 2){
       titleToUse = chooseRandom(titles);
     }
-    var nounPhraseUrl = "https://textanalysis.p.mashape.com/textblob-noun-phrase-extraction?text=" + titleToUse;
-
-    unirest.post("https://textanalysis.p.mashape.com/textblob-noun-phrase-extraction")
-      .header("X-Mashape-Key", process.env.MASHAPE_API_KEY)
-      .header("Content-Type", "application/x-www-form-urlencoded")
-      .header("Accept", "application/json")
-      .send("text=" + titleToUse)
-      .end(function (result) {
-         var phrases = result.body.noun_phrases,
-             firstProblem = chooseRandom(phrases),
-             secondProblem = chooseRandom(phrases);
-        while (firstProblem === secondProblem){
-          firstProblem = chooseRandom(phrases);
-          secondProblem = chooseRandom(phrases);
-        }
-        console.log(tweetBody(firstProblem, secondProblem));
-      });
-    });
+    composeTweet(titleToUse);
+  });
 }).on('error', function(e){
   console.log(e);
 });
