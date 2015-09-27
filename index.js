@@ -55,6 +55,10 @@ http.get("http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySect
          var phrases = result.body.noun_phrases,
              firstProblem = chooseRandom(phrases),
              secondProblem = chooseRandom(phrases);
+        while (firstProblem === secondProblem){
+          firstProblem = chooseRandom(phrases),
+          secondProblem = chooseRandom(phrases);
+        }
         console.log("The two hardest problems in computer science are " + firstProblem + " and " + secondProblem + ".");
       });
     });
