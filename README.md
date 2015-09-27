@@ -12,7 +12,10 @@ There are only two hard things in Computer Science: cache invalidation and namin
 
 This seminal quote spawned jokey riffs:
 
-https://twitter.com/mathiasverraes/status/632260618599403520?ref_src=twsrc%5Etfw
+<blockquote class="twitter-tweet" lang="en"><p lang="en" dir="ltr">There are only two hard problems in distributed systems: 2. Exactly-once delivery 1. Guaranteed order of messages 2. Exactly-once delivery</p>&mdash; Mathias Verraes (@mathiasverraes) <a href="https://twitter.com/mathiasverraes/status/632260618599403520">August 14, 2015</a></blockquote>
+
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8">
+</script>
 
 This bot generates variations of this joke.
 
