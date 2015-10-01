@@ -1,7 +1,11 @@
+require('/Users/nickcox/projects/two_hardest_problems/node_modules/dotenv')
+  .config({ path: '/Users/nickcox/projects/two_hardest_problems/.env' });
+
 var http = require('http'),
-    unirest = require('unirest'),
-    dotenv = require('dotenv').load(),
-    Twit = require('twit'),
+    path = require('path');
+    nodeModuleDir = path.resolve(process.cwd(), 'node_modules'),
+    unirest = require(path.resolve(nodeModuleDir, 'unirest')),
+    Twit = require(path.resolve(nodeModuleDir, 'twit')),
     titles = [],
     titleToUse = '';
 
