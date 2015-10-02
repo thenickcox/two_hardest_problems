@@ -3,7 +3,7 @@ require('/Users/nickcox/projects/two_hardest_problems/node_modules/dotenv')
 
 var http = require('http'),
     path = require('path');
-    nodeModuleDir = path.resolve(process.cwd(), 'node_modules'),
+    nodeModuleDir = process.env.NODE_MODULE_DIR,
     unirest = require(path.resolve(nodeModuleDir, 'unirest')),
     Twit = require(path.resolve(nodeModuleDir, 'twit')),
     titles = [],
