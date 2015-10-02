@@ -2,12 +2,13 @@ require('/Users/nickcox/projects/two_hardest_problems/node_modules/dotenv')
   .config({ path: '/Users/nickcox/projects/two_hardest_problems/.env' });
 
 var http = require('http'),
-    path = require('path');
+    path = require('path'),
+    Q    = require('q'),
     nodeModuleDir = process.env.NODE_MODULE_DIR,
     unirest = require(path.resolve(nodeModuleDir, 'unirest')),
     Twit = require(path.resolve(nodeModuleDir, 'twit')),
-    titles = [],
-    titleToUse = '';
+    headlines = [],
+    headlineToUse = '';
 
 var T = new Twit({
   consumer_key:         process.env.CONSUMER_KEY,
@@ -19,10 +20,6 @@ var T = new Twit({
 var chooseRandom = function (arr) {
   var index = Math.floor(Math.random() * arr.length);
   return arr[index];
-}
-
-var tweetBody = function (firstProblem, secondProblem) {
-  return "The two hardest problems in computer science are " + firstProblem + " and " + secondProblem + ".";
 }
 
 var topStorySections = [
@@ -39,12 +36,13 @@ var topStorySections = [
   'fashion',
 ]
 
-var composeTweet = function(titleToUse){
+var getNounPhrases = function(headline){
+  var deferred = Q.defer();
   unirest.post("https://textanalysis.p.mashape.com/textblob-noun-phrase-extraction")
     .header("X-Mashape-Key", process.env.MASHAPE_API_KEY)
     .header("Content-Type", "application/x-www-form-urlencoded")
     .header("Accept", "application/json")
-    .send("text=" + titleToUse)
+    .send("text=" + headline)
     .end(function (result) {
        var phrases = result.body.noun_phrases,
            firstProblem = chooseRandom(phrases),
@@ -53,35 +51,63 @@ var composeTweet = function(titleToUse){
         firstProblem = chooseRandom(phrases);
         secondProblem = chooseRandom(phrases);
       }
-      var botStatus = tweetBody(firstProblem, secondProblem);
-      T.post('statuses/update', { status: botStatus }, function(err, data, response) {
-        console.log(data)
-      });
+      var problems = [firstProblem, secondProblem];
+      deferred.resolve(problems);
     });
+  return deferred.promise;
 }
 
-var nyTimesUrl = "http://api.nytimes.com/svc/topstories/v1/" + chooseRandom(topStorySections) + ".json?api-key=" + process.env.NY_TIMES_API_KEY;
+var composeTweet = function(problems){
+  var deferred = Q.defer();
 
-http.get(nyTimesUrl, function(res){
-  res.setEncoding('utf-8');
-  var body = '';
-  res.on('data', function(chunk) {
-    body += chunk;
-  });
-  res.on('end', function() {
-    var newBody = JSON.parse(body);
-        results = newBody.results;
-        resLength = results.length;
-    for (var i = 0; i < resLength; i++) {
-      title = results[i].title;
-      titles.push(title);
+  var tweetBody = function (problems) {
+    return "The two hardest problems in computer science are " + problems[0] + " and " + problems[1] + ".";
+  }
+
+  T.post('statuses/update', { status: tweetBody(problems) }, function(err, data, response) {
+    if (err) {
+      deferred.reject(err);
     }
-    titleToUse = chooseRandom(titles);
-    while (titleToUse.length <= 2){
-      titleToUse = chooseRandom(titles);
-    }
-    composeTweet(titleToUse);
+    console.log(data);
+    deferred.resolve(data);
   });
-}).on('error', function(e){
-  console.log(e);
-});
+  return deferred.promise;
+}
+
+var getNYTimesHeadline = function(){
+  var deferred = Q.defer(),
+      nyTimesUrl = "http://api.nytimes.com/svc/topstories/v1/" +
+                   chooseRandom(topStorySections) +
+                   ".json?api-key=" +
+                   process.env.NY_TIMES_API_KEY;
+  http.get(nyTimesUrl, function(res){
+    res.setEncoding('utf-8');
+    var body = '';
+    res.on('data', function(chunk) {
+      body += chunk;
+    });
+    res.on('end', function() {
+      var newBody = JSON.parse(body);
+          results = newBody.results;
+          resLength = results.length;
+      for (var i = 0; i < resLength; i++) {
+        headline = results[i].title;
+        headlines.push(headline);
+      }
+      headlineToUse = chooseRandom(headlines);
+      deferred.resolve(headlineToUse);
+    });
+  }).on('error', function(e){
+    deferred.reject(e);
+  });
+  return deferred.promise;
+}
+
+getNYTimesHeadline()
+  .then(function(headline){
+    return getNounPhrases(headline)
+  })
+  .then(function(nounPhrases){
+    return composeTweet(nounPhrases)
+  })
+  .done();
