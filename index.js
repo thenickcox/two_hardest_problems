@@ -36,6 +36,7 @@ var topStorySections = [
   'fashion',
 ]
 
+
 var getNounPhrases = function(headline){
   var deferred = Q.defer();
   unirest.post("https://textanalysis.p.mashape.com/textblob-noun-phrase-extraction")
@@ -57,11 +58,17 @@ var getNounPhrases = function(headline){
   return deferred.promise;
 }
 
+
+var leads = ['two hardest', 'only two hard'];
+var subjects = ['computer science', 'programming', 'computers'];
+
 var composeTweet = function(problems){
   var deferred = Q.defer();
 
   var tweetBody = function (problems) {
-    return "The two hardest problems in computer science are " + problems[0] + " and " + problems[1] + ".";
+    var lead = leads[Math.floor(Math.random() * leads.length)];
+    var subject = subjects[Math.floor(Math.random() * subjects.length)];
+    return "The " + lead + " problems in " + subject + " are " + problems[0] + " and " + problems[1] + ".";
   }
 
   T.post('statuses/update', { status: tweetBody(problems) }, function(err, data, response) {
